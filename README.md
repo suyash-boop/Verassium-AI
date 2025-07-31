@@ -9,7 +9,7 @@
 
 **A vibrant, neobrutalism-styled AI chatbot platform with multiple model support**
 
-[🌟 Features](#-features) • [🚀 Quick Start](#-quick-start) • [🎨 Design](#-design-philosophy) • [📖 Documentation](#-documentation)
+
 
 </div>
 
