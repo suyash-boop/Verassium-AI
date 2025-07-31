@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LogOut, Plus, MessageSquare, MoreHorizontal, Edit, Trash2, Check, X } from "lucide-react"
+import { LogOut, Plus, MessageSquare, MoreHorizontal, Edit, Trash2, Check, X, Menu } from "lucide-react"
 import { format } from "date-fns"
 
 
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [editingTitle, setEditingTitle] = useState("")
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (status === "loading") return
@@ -53,11 +54,13 @@ export default function Dashboard() {
 
   const handleNewChat = () => {
     setCurrentChatId(undefined)
+    setIsMobileMenuOpen(false) // Close mobile menu when creating new chat
   }
 
   const handleChatSelect = (chatId: string) => {
     setCurrentChatId(chatId)
     setActiveDropdown(null)
+    setIsMobileMenuOpen(false) // Close mobile menu when selecting chat
   }
 
   const handleChatCreated = (newChatId: string) => {
@@ -150,22 +153,42 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="h-screen bg-background flex">
+    <div className="h-screen bg-background flex relative">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-[#ff6678] p-2 rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] hover:shadow-[4px_4px_0_0_#000] transition-all"
+      >
+        <Menu className="h-5 w-5 text-white" />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-64 bg-[#ff6678] border-r-4 border-black flex flex-col shadow-[8px_0_0_0_#000]">
+      <div className={`
+        w-64 bg-[#ff6678] border-r-4 border-black flex flex-col shadow-[8px_0_0_0_#000] z-40
+        md:relative md:translate-x-0 transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'fixed translate-x-0' : 'fixed -translate-x-full md:translate-x-0'}
+      `}>
         {/* User Info */}
-        <div className="p-4 border-b-4 border-black bg-white">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="p-3 md:p-4 border-b-4 border-black bg-white">
+          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
             <div className="relative">
               <img
                 src={session.user.image || "/default-avatar.png"}
                 alt={session.user.name || "User"}
-                className="w-10 h-10 rounded-full border-2 border-black shadow-[2px_2px_0_0_#000]"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-black shadow-[2px_2px_0_0_#000]"
               />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#facc00] rounded-full border border-black"></div>
+              <div className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 w-2 h-2 md:w-3 md:h-3 bg-[#facc00] rounded-full border border-black"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-heading text-foreground truncate">
+              <p className="text-xs md:text-sm font-heading text-foreground truncate">
                 {session.user.name}
               </p>
               <p className="text-xs text-foreground/70 truncate font-base">
@@ -175,7 +198,7 @@ export default function Dashboard() {
           </div>
           <Button
             onClick={handleNewChat}
-            className="w-full flex items-center gap-2 transform hover:scale-105 transition-all duration-200 hover:shadow-[4px_4px_0_0_#000]"
+            className="w-full flex items-center gap-2 transform hover:scale-105 transition-all duration-200 hover:shadow-[4px_4px_0_0_#000] text-xs md:text-sm"
             size="sm"
           >
             <Plus className="h-4 w-4" />
@@ -184,27 +207,27 @@ export default function Dashboard() {
         </div>
 
         {/* Chat History */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="bg-[#facc00] p-3 rounded-lg border-2 border-black shadow-[4px_4px_0_0_#000] mb-4 transform -rotate-1">
-            <h3 className="text-lg font-heading text-black uppercase tracking-wide text-center">
+        <div className="flex-1 overflow-y-auto p-3 md:p-4">
+          <div className="bg-[#facc00] p-2 md:p-3 rounded-lg border-2 border-black shadow-[4px_4px_0_0_#000] mb-3 md:mb-4 transform -rotate-1">
+            <h3 className="text-sm md:text-lg font-heading text-black uppercase tracking-wide text-center">
               Chat History
             </h3>
           </div>
           {chats.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[4px_4px_0_0_#000] transform rotate-1">
-                <MessageSquare className="h-12 w-12 text-[#a985ff] mx-auto mb-3" />
-                <p className="text-sm font-heading text-black mb-1">No chats yet</p>
+            <div className="text-center py-6 md:py-8">
+              <div className="bg-white p-4 md:p-6 rounded-lg border-2 border-black shadow-[4px_4px_0_0_#000] transform rotate-1">
+                <MessageSquare className="h-8 w-8 md:h-12 md:w-12 text-[#a985ff] mx-auto mb-2 md:mb-3" />
+                <p className="text-xs md:text-sm font-heading text-black mb-1">No chats yet</p>
                 <p className="text-xs text-black/70 font-base">Start a conversation!</p>
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {chats.map((chat, index) => (
                 <div key={chat.id} className="relative group">
                   <button
                     onClick={() => handleChatSelect(chat.id)}
-                    className={`w-full text-left p-4 rounded-lg text-sm transition-all transform hover:scale-105 hover:shadow-[4px_4px_0_0_#000] border-2 border-black font-base ${
+                    className={`w-full text-left p-3 md:p-4 rounded-lg text-xs md:text-sm transition-all transform hover:scale-105 hover:shadow-[4px_4px_0_0_#000] border-2 border-black font-base ${
                       currentChatId === chat.id
                         ? "bg-[#e96bff] text-white shadow-[4px_4px_0_0_#000] scale-105"
                         : index % 3 === 0 
@@ -223,7 +246,7 @@ export default function Dashboard() {
                             if (e.key === "Enter") saveRename()
                             if (e.key === "Escape") cancelRename()
                           }}
-                          className="text-xs h-6 px-2"
+                          className="text-xs h-5 md:h-6 px-1 md:px-2"
                           autoFocus
                         />
                         <button
@@ -231,7 +254,7 @@ export default function Dashboard() {
                             e.stopPropagation()
                             saveRename()
                           }}
-                          className="p-1 hover:bg-main/20 rounded"
+                          className="p-0.5 md:p-1 hover:bg-main/20 rounded"
                         >
                           <Check className="h-3 w-3" />
                         </button>
@@ -240,7 +263,7 @@ export default function Dashboard() {
                             e.stopPropagation()
                             cancelRename()
                           }}
-                          className="p-1 hover:bg-main/20 rounded"
+                          className="p-0.5 md:p-1 hover:bg-main/20 rounded"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -248,31 +271,31 @@ export default function Dashboard() {
                     ) : (
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-heading font-semibold truncate text-sm mb-1">
+                          <h3 className="font-heading font-semibold truncate text-xs md:text-sm mb-0.5 md:mb-1">
                             {chat.title || `Chat ${chat.id.slice(0, 8)}`}
                           </h3>
                           <p className="text-xs opacity-70 truncate font-base">
                             {format(new Date(chat.updatedAt), "MMM d, yyyy")}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 md:gap-2">
                           {index % 4 === 0 && (
-                            <div className="w-3 h-3 bg-white rounded-full border-2 border-black flex-shrink-0"></div>
+                            <div className="w-2 h-2 md:w-3 md:h-3 bg-white rounded-full border border-black md:border-2 flex-shrink-0"></div>
                           )}
                           {index % 4 === 1 && (
-                            <div className="w-3 h-3 bg-[#facc00] rounded-full border-2 border-black flex-shrink-0"></div>
+                            <div className="w-2 h-2 md:w-3 md:h-3 bg-[#facc00] rounded-full border border-black md:border-2 flex-shrink-0"></div>
                           )}
                           {index % 4 === 2 && (
-                            <div className="w-3 h-3 bg-[#e96bff] rounded-full border-2 border-black flex-shrink-0"></div>
+                            <div className="w-2 h-2 md:w-3 md:h-3 bg-[#e96bff] rounded-full border border-black md:border-2 flex-shrink-0"></div>
                           )}
                           {index % 4 === 3 && (
-                            <div className="w-3 h-3 bg-[#a985ff] rounded-full border-2 border-black flex-shrink-0"></div>
+                            <div className="w-2 h-2 md:w-3 md:h-3 bg-[#a985ff] rounded-full border border-black md:border-2 flex-shrink-0"></div>
                           )}
                           <button
                             onClick={(e) => toggleDropdown(chat.id, e)}
-                            className="opacity-50 hover:opacity-100 group-hover:opacity-100 p-1 hover:bg-black/10 rounded transition-all shrink-0"
+                            className="opacity-50 hover:opacity-100 group-hover:opacity-100 p-0.5 md:p-1 hover:bg-black/10 rounded transition-all shrink-0"
                           >
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="h-3 w-3 md:h-4 md:w-4" />
                           </button>
                         </div>
                       </div>
@@ -308,21 +331,21 @@ export default function Dashboard() {
         </div>
 
         {/* Sign Out */}
-        <div className="p-4 border-t border-border">
+        <div className="p-3 md:p-4 border-t border-border">
           <Button
             onClick={handleSignOut}
             variant="default"
-            className="w-full flex items-center gap-2"
+            className="w-full flex items-center gap-2 text-xs md:text-sm"
             size="sm"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-3 w-3 md:h-4 md:w-4" />
             Sign Out
           </Button>
         </div>
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1">
+      <div className="flex-1 md:ml-0 ml-0">
         <ChatInterface
           chatId={currentChatId}
           onNewChat={handleNewChat}
@@ -332,27 +355,27 @@ export default function Dashboard() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border border-border rounded-lg p-6 max-w-sm mx-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background border border-border rounded-lg p-4 md:p-6 max-w-sm w-full mx-4">
             <div className="text-center">
-              <Trash2 className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <Trash2 className="h-8 w-8 md:h-12 md:w-12 text-red-500 mx-auto mb-3 md:mb-4" />
+              <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                 Delete Chat
               </h3>
-              <p className="text-foreground/70 mb-6">
+              <p className="text-sm md:text-base text-foreground/70 mb-4 md:mb-6">
                 Are you sure you want to delete this chat? This action cannot be undone.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={() => deleteChat(showDeleteConfirm)}
                   variant="outline"
-                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50 text-sm"
                 >
                   Delete
                 </Button>
                 <Button
                   onClick={() => setShowDeleteConfirm(null)}
-                  className="flex-1"
+                  className="flex-1 text-sm"
                 >
                   Cancel
                 </Button>
