@@ -45,8 +45,8 @@ interface ChatInterfaceProps {
 
 const AI_MODELS = [
   {
-    value: "llama3-8b-8192",
-    label: "Llama 3 8B",
+    value: "openai/gpt-oss-20b",
+    label: "Open AI",
     description: "Fast & balanced - great for most tasks",
   },
   {
@@ -56,13 +56,13 @@ const AI_MODELS = [
   },
   {
     value: "moonshotai/kimi-k2-instruct",
-    label: "Moonsshot AI",
+    label: "Moonshot AI",
     description: "Creative & long context",
   },
   {
-    value: "deepseek-r1-distill-llama-70b",
-    label: "Deepseek R1",
-    description: "Deepseek's reasoning model",
+    value: "llama-3.1-8b-instant",
+    label: "llama instant",
+    description: "Meta's llama intant model",
   },
 ];
 
